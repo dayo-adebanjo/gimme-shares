@@ -17,8 +17,9 @@
            font: 14px/1.5 "Space Mono", ui-monospace, monospace; }
     main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
     a { color: var(--ink); }
-    .brand { font-family: "Silkscreen", monospace; font-size: 28px; text-decoration: none; }
-    h1 { font-family: "Silkscreen", monospace; font-weight: 400; font-size: 22px; line-height: 1.25; margin: 24px 0 4px; }
+    .brand { display: block; width: 96px; margin: 0 auto; }
+    .brand img { display: block; width: 100%; height: auto; }
+    h1 { font-family: "Silkscreen", monospace; font-weight: 400; font-size: 22px; line-height: 1.25; margin: 8px 0 4px; }
     .meta { color: var(--muted); font-size: 12px; margin: 0 0 16px; }
     .status { color: var(--muted); padding: 48px 0; text-align: center; }
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -56,7 +57,7 @@
 </head>
 <body>
   <main>
-    <a class="brand" href="https://gimme-wish.com/">gimme</a>
+    <a class="brand" href="https://gimme-wish.com/"><img src="/logo.png" alt="gimme" width="96" height="96"></a>
 
     <p class="status" id="status" role="status">Loading…</p>
     <button class="pill outline" id="retry" type="button" hidden>Try again</button>
