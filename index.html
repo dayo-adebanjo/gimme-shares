@@ -90,7 +90,11 @@
 
   <script>
     // The gimme Supabase project's Edge Functions. Public: these two take no key or sign-in.
-    const FUNCTIONS_URL = "https://reicznfujcgagsxvphpy.supabase.co/functions/v1";
+    // Opened from localhost (`npm run dev:local` in the app repo), it uses the local stack.
+    const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+    const FUNCTIONS_URL = IS_LOCAL
+      ? "http://127.0.0.1:54321/functions/v1"
+      : "https://reicznfujcgagsxvphpy.supabase.co/functions/v1";
 
     // Same labels and colours as the app (src/strings/en.ts, src/theme/tokens.ts).
     const CATEGORIES = {

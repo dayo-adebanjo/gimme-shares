@@ -12,5 +12,8 @@ time it is opened, so it always shows the current wishlist. `Report this list` p
 - `404.html`: sends `/<token>` links to `/?l=<token>`.
 - `CNAME`: the custom domain. DNS needs a `CNAME` record `list` → `dayo-adebanjo.github.io`.
 
+To try it locally, run `npm run dev:local` in the app repo: it serves this folder at
+http://localhost:8765, and the page then talks to the local Supabase stack.
+
 To change the page, edit `index.html` and push to `main`; GitHub republishes in about a minute.
 The functions live in the app repo under `supabase/functions/` (SPEC §16, §17).
