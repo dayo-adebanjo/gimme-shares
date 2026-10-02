@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>gimme</title>
+  <script>
+    // A link written as /{token} lands here: hand it to the page as /?l={token}.
+    const token = location.pathname.replace(/^\/+|\/+$/g, "");
+    location.replace("/" + (/^[0-9a-f]{32}$/.test(token) ? "?l=" + token : ""));
+  </script>
+</head>
+<body></body>
+</html>

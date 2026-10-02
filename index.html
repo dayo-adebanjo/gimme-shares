@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <!-- The link token is in this page's URL: never send it to stores or image hosts. -->
+  <meta name="referrer" content="no-referrer">
+  <title>a gimme wishlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink: #111111; --muted: #5C5C58; --line: #E4E4E0; --snow: #F4F4F1; --surface: #FFFFFF; --danger: #C4153A; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--snow); color: var(--ink);
+           font: 14px/1.5 "Space Mono", ui-monospace, monospace; }
+    main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+    a { color: var(--ink); }
+    .brand { font-family: "Silkscreen", monospace; font-size: 28px; text-decoration: none; }
+    h1 { font-family: "Silkscreen", monospace; font-weight: 400; font-size: 22px; line-height: 1.25; margin: 24px 0 4px; }
+    .meta { color: var(--muted); font-size: 12px; margin: 0 0 16px; }
+    .status { color: var(--muted); padding: 48px 0; text-align: center; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; } }
+    @media (min-width: 900px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .card { background: var(--surface); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .picture { aspect-ratio: 1; width: 100%; display: flex; align-items: center; justify-content: center;
+               background: var(--surface); text-align: center; padding: 8px; font-size: 12px; }
+    .picture img { width: 100%; height: 100%; object-fit: contain; }
+    .details { padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+    .name { font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .store { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .price { font-size: 16px; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px;
+            border-radius: 999px; border: 1px solid var(--ink); background: var(--ink); color: var(--surface);
+            font: inherit; text-decoration: none; cursor: pointer; }
+    .pill.outline { background: transparent; color: var(--ink); }
+    .pill:disabled { opacity: 0.5; cursor: default; }
+    .card .pill { margin-top: auto; width: 100%; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); display: flex;
+             flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+    .link-button { background: none; border: 0; padding: 0; font: inherit; color: var(--muted);
+                   text-decoration: underline; cursor: pointer; min-height: 44px; }
+    dialog { border: 0; border-radius: 12px; padding: 24px 16px; width: min(420px, calc(100vw - 32px)); font: inherit; color: var(--ink); }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
+    dialog h2 { font-family: "Silkscreen", monospace; font-weight: 400; font-size: 18px; margin: 0 0 12px; }
+    dialog label { display: flex; gap: 8px; align-items: center; min-height: 36px; }
+    textarea { width: 100%; min-height: 80px; margin-top: 8px; padding: 8px 12px; border: 1px solid var(--line);
+               border-radius: 12px; background: var(--snow); font: inherit; color: var(--ink); resize: vertical; }
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+    .actions .pill { flex: 1; }
+    .error { color: var(--danger); font-size: 12px; margin: 8px 0 0; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="brand" href="https://gimme-wish.com/">gimme</a>
+
+    <p class="status" id="status" role="status">Loading…</p>
+    <button class="pill outline" id="retry" type="button" hidden>Try again</button>
+
+    <section id="list" hidden>
+      <h1 id="title"></h1>
+      <p class="meta" id="meta"></p>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <footer id="footer" hidden>
+      <button class="link-button" id="report-open" type="button">Report this list</button>
+      <span>made with <a href="https://gimme-wish.com/">gimme</a></span>
+    </footer>
+  </main>
+
+  <dialog id="report">
+    <form id="report-form" method="dialog">
+      <h2>report this list</h2>
+      <label><input type="radio" name="reason" value="inappropriate" required> Inappropriate content</label>
+      <label><input type="radio" name="reason" value="spam"> Spam or a scam</label>
+      <label><input type="radio" name="reason" value="other"> Something else</label>
+      <textarea name="details" maxlength="500" placeholder="Anything we should know? (optional)" aria-label="Details"></textarea>
+      <p class="error" id="report-error" role="alert" hidden></p>
+      <div class="actions">
+        <button class="pill outline" id="report-cancel" type="button">Cancel</button>
+        <button class="pill" id="report-send" type="submit">Send report</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    // The gimme Supabase project's Edge Functions. Public: these two take no key or sign-in.
+    const FUNCTIONS_URL = "https://reicznfujcgagsxvphpy.supabase.co/functions/v1";
+
+    // Same labels and colours as the app (src/strings/en.ts, src/theme/tokens.ts).
+    const CATEGORIES = {
+      wearables: { label: "wearables", fill: "#6FD3E6", text: "#07343D" },
+      jewelry: { label: "jewelry", fill: "#B79CFF", text: "#241457" },
+      beauty_skin: { label: "beauty + skin", fill: "#FF8FA8", text: "#4A0E1C" },
+      hair: { label: "hair", fill: "#FFA24C", text: "#4A2300" },
+      home_decor: { label: "home + decor", fill: "#B8EE5A", text: "#233B00" },
+      tech: { label: "tech", fill: "#8FB0FF", text: "#0E2566" },
+      books_media: { label: "books + media", fill: "#A8DDB5", text: "#133A1C" },
+      fitness: { label: "fitness", fill: "#FFE45C", text: "#4A3D00" },
+      kids_baby: { label: "kids + baby", fill: "#FFC7EC", text: "#5A1040" },
+      other: { label: "other", fill: "#CFCFCF", text: "#2B2B2B" },
+    };
+
+    const token = new URLSearchParams(location.search).get("l") || "";
+    const byId = (id) => document.getElementById(id);
+    const statusLine = byId("status");
+
+    function element(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function showStatus(message, canRetry) {
+      statusLine.textContent = message;
+      statusLine.hidden = false;
+      byId("retry").hidden = !canRetry;
+      byId("list").hidden = true;
+      byId("footer").hidden = true;
+    }
+
+    function formatPrice(amount, currency) {
+      try {
+        return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount);
+      } catch {
+        return `${amount} ${currency}`;
+      }
+    }
+
+    function placeholder(picture, item) {
+      const colours = CATEGORIES[item.category] || CATEGORIES.other;
+      picture.replaceChildren(document.createTextNode(item.storeName || ""));
+      picture.style.background = colours.fill;
+      picture.style.color = colours.text;
+    }
+
+    function card(item) {
+      const node = element("article", "card");
+      const picture = element("div", "picture");
+      if (item.imageUrl) {
+        const image = element("img");
+        image.src = item.imageUrl;
+        image.alt = "";
+        image.loading = "lazy";
+        image.addEventListener("error", () => placeholder(picture, item));
+        picture.append(image);
+      } else {
+        placeholder(picture, item);
+      }
+
+      const details = element("div", "details");
+      details.append(element("div", "name", item.name));
+      if (item.storeName) details.append(element("div", "store", item.storeName));
+      if (item.priceAmount !== null && item.priceCurrency) {
+        details.append(element("div", "price", formatPrice(item.priceAmount, item.priceCurrency)));
+      }
+      if (item.url && /^https?:\/\//i.test(item.url)) {
+        const view = element("a", "pill", item.isSocialPost ? "View post" : "View");
+        view.href = item.url;
+        view.target = "_blank";
+        view.rel = "noopener noreferrer nofollow";
+        details.append(view);
+      }
+      node.append(picture, details);
+      return node;
+    }
+
+    function render(list) {
+      const title = list.displayName ? `${list.displayName}'s wishlist` : "a gimme wishlist";
+      document.title = title;
+      byId("title").textContent = title;
+      const count = `${list.items.length} item${list.items.length === 1 ? "" : "s"}`;
+      const category = list.category && CATEGORIES[list.category];
+      byId("meta").textContent = category ? `${category.label} · ${count}` : count;
+      byId("grid").replaceChildren(...list.items.map(card));
+      statusLine.hidden = list.items.length > 0;
+      statusLine.textContent = "Nothing on this list yet.";
+      byId("retry").hidden = true;
+      byId("list").hidden = false;
+      byId("footer").hidden = false;
+    }
+
+    async function load() {
+      if (!token) return showStatus("This list isn't available.", false);
+      showStatus("Loading…", false);
+      try {
+        const response = await fetch(`${FUNCTIONS_URL}/shared-list?token=${encodeURIComponent(token)}`);
+        if (response.status === 404) return showStatus("This list isn't available.", false);
+        if (!response.ok) throw new Error(`shared-list ${response.status}`);
+        render(await response.json());
+      } catch {
+        showStatus("Couldn't load this list. Check your connection and try again.", true);
+      }
+    }
+
+    const reportDialog = byId("report");
+    const reportError = byId("report-error");
+    byId("retry").addEventListener("click", load);
+    byId("report-open").addEventListener("click", () => {
+      reportError.hidden = true;
+      reportDialog.showModal();
+    });
+    byId("report-cancel").addEventListener("click", () => reportDialog.close());
+    byId("report-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.target);
+      const send = byId("report-send");
+      send.disabled = true;
+      send.textContent = "Sending…";
+      reportError.hidden = true;
+      try {
+        const response = await fetch(`${FUNCTIONS_URL}/report-list`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, reason: form.get("reason"), details: form.get("details") }),
+        });
+        if (!response.ok) throw new Error(`report-list ${response.status}`);
+        reportDialog.close();
+        event.target.reset();
+        byId("report-open").textContent = "Report sent. Thank you.";
+        byId("report-open").disabled = true;
+      } catch {
+        reportError.textContent = "Couldn't send the report. Try again.";
+        reportError.hidden = false;
+      } finally {
+        send.disabled = false;
+        send.textContent = "Send report";
+      }
+    });
+
+    load();
+  </script>
+</body>
+</html>
